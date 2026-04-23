@@ -11,7 +11,6 @@ COPY frontend ./frontend
 WORKDIR /app/frontend
 ENV NEXT_TELEMETRY_DISABLED=1
 # Browser-side URLs are baked into the JS bundle at build time.
-# Compose passes these via build.args from .env; no defaults here on purpose.
 ARG NEXT_PUBLIC_BACKEND_URL
 ARG NEXT_PUBLIC_WS_URL
 ENV NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
@@ -30,7 +29,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/frontend/node_modules ./node_modu
 COPY --from=builder --chown=nextjs:nodejs /app/frontend/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/frontend/next.config.js ./next.config.js
 USER nextjs
-EXPOSE 3000
+# PORT is the standard Next.js env var; container listens on $PORT.
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
+EXPOSE 3000
 CMD ["npm", "start"]
