@@ -21,8 +21,9 @@ COPY data /app/data
 
 WORKDIR /app/backend
 
-# Listen on $BACKEND_PORT (default 8000). Use shell form so the var
-# expands at container start, not at image-build time.
-ENV BACKEND_PORT=8000
-EXPOSE 8000
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${BACKEND_PORT}"]
+# Listen port comes from compose env (BACKEND_PORT). EXPOSE is just
+# documentation; override at build time with `--build-arg PORT=...` if you
+# need a different default for raw `docker run`.
+ARG PORT=8000
+EXPOSE $PORT
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${BACKEND_PORT:-${PORT}}"]

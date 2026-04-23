@@ -29,8 +29,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/frontend/node_modules ./node_modu
 COPY --from=builder --chown=nextjs:nodejs /app/frontend/package.json ./package.json
 COPY --from=builder --chown=nextjs:nodejs /app/frontend/next.config.js ./next.config.js
 USER nextjs
-# PORT is the standard Next.js env var; container listens on $PORT.
 ENV HOSTNAME=0.0.0.0
-ENV PORT=3000
-EXPOSE 3000
+# Listen port comes from compose env (PORT). EXPOSE is just documentation;
+# override at build time with `--build-arg PORT=...` if you need a different
+# default for raw `docker run`.
+ARG PORT=3000
+EXPOSE $PORT
 CMD ["npm", "start"]
