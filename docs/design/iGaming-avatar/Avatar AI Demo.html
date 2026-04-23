@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Alex — AI Companion Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e14;
+    --surface: #111827;
+    --surface-alt: #1a1f2e;
+    --surface-raised: #1e2536;
+    --border: #1f2937;
+    --border-strong: #374151;
+    --text: #e5e7eb;
+    --text-dim: #9ca3af;
+    --text-mute: #6b7280;
+    --gold: #fbbf24;
+    --gold-hi: #fcd34d;
+    --gold-dim: #b38a1f;
+    --blue: #3b82f6;
+    --success: #10b981;
+    --warn: #f59e0b;
+    --error: #ef4444;
+    --avatar-from: #6366f1;
+    --avatar-to: #ec4899;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #05070a;
+    color: var(--text);
+    font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  /* Scrollbars */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2a3142; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a4256; }
+
+  /* Shell */
+  #root { width: 100vw; height: 100vh; display: flex; overflow: hidden; }
+
+  /* Avatar pulse */
+  @keyframes pulseRing {
+    0%   { box-shadow: 0 0 0 0 rgba(236,72,153,0.45), 0 0 0 0 rgba(99,102,241,0.35); }
+    70%  { box-shadow: 0 0 0 14px rgba(236,72,153,0), 0 0 0 22px rgba(99,102,241,0); }
+    100% { box-shadow: 0 0 0 0 rgba(236,72,153,0), 0 0 0 0 rgba(99,102,241,0); }
+  }
+  .alex-pulse { animation: pulseRing 2.6s ease-out infinite; }
+
+  @keyframes bubbleIn {
+    from { opacity: 0; transform: translateY(6px) scale(0.94); }
+    60%  { opacity: 1; transform: translateY(-2px) scale(1.02); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .bubble-in { animation: bubbleIn 400ms cubic-bezier(0.2, 0.9, 0.3, 1.4) both; }
+
+  @keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-3px); opacity: 1; }
+  }
+  .dot { display: inline-block; width: 6px; height: 6px; background: var(--text-dim); border-radius: 50%; margin: 0 2px; animation: typing 1.2s infinite; }
+  .dot:nth-child(2) { animation-delay: 0.2s; }
+  .dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes micWave {
+    0%, 100% { transform: scaleY(0.4); }
+    50% { transform: scaleY(1); }
+  }
+  .mic-bar { display: inline-block; width: 3px; background: currentColor; border-radius: 2px; margin: 0 1.5px; animation: micWave 0.8s ease-in-out infinite; transform-origin: center; }
+  .mic-bar:nth-child(1) { height: 10px; animation-delay: 0s; }
+  .mic-bar:nth-child(2) { height: 16px; animation-delay: 0.15s; }
+  .mic-bar:nth-child(3) { height: 22px; animation-delay: 0.3s; }
+  .mic-bar:nth-child(4) { height: 16px; animation-delay: 0.45s; }
+  .mic-bar:nth-child(5) { height: 10px; animation-delay: 0.6s; }
+
+  /* Confetti */
+  @keyframes confettiFall {
+    0%   { transform: translate3d(0,-20vh,0) rotate(0deg); opacity: 1; }
+    100% { transform: translate3d(var(--dx, 0), 110vh, 0) rotate(720deg); opacity: 0.9; }
+  }
+  .confetto {
+    position: absolute; top: 0;
+    width: 8px; height: 12px; border-radius: 1px;
+    animation: confettiFall var(--dur, 2.4s) cubic-bezier(0.25, 1, 0.4, 1) forwards;
+  }
+
+  /* RG warm glow */
+  @keyframes rgGlow {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(245,158,11,0.35), 0 0 60px 4px rgba(245,158,11,0.28), 0 0 120px 12px rgba(245,158,11,0.15); }
+    50% { box-shadow: 0 0 0 1px rgba(245,158,11,0.5), 0 0 80px 6px rgba(245,158,11,0.38), 0 0 140px 18px rgba(245,158,11,0.2); }
+  }
+  .rg-glow { animation: rgGlow 3.2s ease-in-out infinite; }
+
+  /* Pulse dot */
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(1.25); }
+  }
+  .pulse-dot { animation: pulseDot 1.6s ease-in-out infinite; }
+
+  /* Balance ticker */
+  @keyframes flashGold {
+    0% { color: var(--gold); text-shadow: 0 0 0 transparent; }
+    40% { color: #fde68a; text-shadow: 0 0 18px rgba(252,211,77,0.7); }
+    100% { color: var(--gold); text-shadow: 0 0 0 transparent; }
+  }
+  .balance-flash { animation: flashGold 1.8s ease-out; }
+
+  /* Slide-in */
+  @keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0.8; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .sidebar-enter { animation: slideInRight 320ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .slide-up { animation: slideUp 320ms cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+  /* Fade */
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .fade-in { animation: fadeIn 220ms ease-out; }
+
+  /* Card hover */
+  .match-card { transition: transform 160ms ease, border-color 160ms ease, background 160ms ease; }
+  .match-card:hover { transform: translateY(-1px); border-color: #2a3445; background: #141b2b; }
+
+  /* Odds chip */
+  .odds { transition: background 140ms ease, color 140ms ease, border-color 140ms ease; }
+  .odds:hover { background: rgba(251,191,36,0.14); border-color: rgba(251,191,36,0.4); }
+
+  /* Button hover */
+  .btn-hover { transition: transform 140ms ease, background 140ms ease, border-color 140ms ease, filter 140ms ease; }
+  .btn-hover:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .btn-hover:active { transform: translateY(0); filter: brightness(0.95); }
+
+  /* Tweaks panel */
+  .tweaks-card {
+    position: fixed; top: 16px; left: 16px; z-index: 200;
+    background: rgba(14,18,28,0.94); backdrop-filter: blur(14px);
+    border: 1px solid #232a3a; border-radius: 14px;
+    padding: 14px; width: 260px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    max-height: calc(100vh - 32px); overflow-y: auto;
+  }
+  .tweaks-card h4 { margin: 0 0 8px; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-mute); font-weight: 600; }
+  .tweaks-card label { display: block; font-size: 12px; color: var(--text-dim); margin: 10px 0 4px; }
+  .tweaks-card select, .tweaks-card button { width: 100%; background: #171d2b; color: var(--text); border: 1px solid #252d40; border-radius: 8px; padding: 8px 10px; font: inherit; font-size: 13px; cursor: pointer; }
+  .tweaks-card button:hover { border-color: var(--gold); }
+  .tweaks-seg { display: flex; gap: 4px; background: #0f1420; padding: 3px; border-radius: 8px; border: 1px solid #1d2435; }
+  .tweaks-seg button { flex: 1; padding: 6px 8px; font-size: 12px; border-radius: 6px; border: none; background: transparent; color: var(--text-dim); }
+  .tweaks-seg button.active { background: #232a3c; color: var(--text); }
+  .tweaks-badge { position: fixed; top: 16px; left: 16px; z-index: 200; background: rgba(14,18,28,0.9); border: 1px solid #232a3a; border-radius: 999px; padding: 8px 14px; font-size: 12px; color: var(--text-dim); cursor: pointer; backdrop-filter: blur(10px); }
+  .tweaks-badge:hover { color: var(--gold); border-color: var(--gold); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="components/ios-frame.jsx"></script>
+<script type="text/babel" src="components/Backdrop.jsx"></script>
+<script type="text/babel" src="components/Widget.jsx"></script>
+<script type="text/babel" src="components/Gallery.jsx"></script>
+<script type="text/babel" src="components/App.jsx"></script>
+
+</body>
+</html>

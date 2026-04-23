@@ -1,0 +1,214 @@
+# Avatar AI Demo — единый источник истины.
+# Парсится одинаково backend'ом (pydantic) и frontend'ом (js-yaml через
+# scripts/gen_frontend_state.mjs → frontend/lib/demo-state.ts).
+#
+# Меняешь здесь — меняется и в LLM-контексте, и в букмекерской вёрстке.
+
+# ─────────────────────────────────────────────────────────────────
+# Матчи в фиде BETARENA. Берутся в <matches/> блок system prompt'а.
+# ─────────────────────────────────────────────────────────────────
+matches:
+  - id: m_real_barca
+    sport: football
+    league: Ла Лига
+    home: Реал Мадрид
+    away: Барселона
+    startsAt: "2026-04-23T21:00:00+03:00"
+    odds: { home: 2.10, draw: 3.40, away: 3.20 }
+    extendedLines:
+      - { name: "Обе забьют — Да", price: 1.65 }
+      - { name: "Тотал больше 2.5", price: 1.55 }
+      - { name: "Винисиус забьёт", price: 3.00 }
+      - { name: "Обе забьют + ТБ 2.5", price: 2.10 }
+    analystNote: |
+      Эль-Класико. В 5 из 6 последних очных встреч обе команды забили,
+      средний тотал 3.2. Реал дома, Барса в хорошей выездной серии.
+      Винисиус — 4 гола в 3 последних матчах, в огне.
+    featured: true
+
+  - id: m_liv_city
+    sport: football
+    league: АПЛ
+    home: Ливерпуль
+    away: Манчестер Сити
+    startsAt: "2026-04-23T18:30:00+03:00"
+    odds: { home: 1.85, draw: 3.60, away: 4.20 }
+    extendedLines:
+      - { name: "Тотал больше 2.5", price: 1.70 }
+      - { name: "Салах забьёт", price: 2.25 }
+    analystNote: |
+      Топовая форма у обеих команд. Ливерпуль фаворит дома.
+      Зазор по xG в этом сезоне минимальный, ожидается напряжённый матч.
+    featured: true
+
+  - id: m_lakers_celtics
+    sport: basketball
+    league: NBA
+    home: Лейкерс
+    away: Бостон
+    startsAt: "2026-04-24T03:00:00+03:00"
+    odds: { home: 1.95, away: 1.85 }
+    extendedLines:
+      - { name: "Тотал больше 220.5", price: 1.90 }
+    analystNote: |
+      Классическое противостояние. Лейкерс на серии из 4 побед,
+      но Бостон — фаворит по составу и форме.
+    featured: true
+
+  - id: m_atalanta_napoli
+    sport: football
+    league: Серия А
+    home: Аталанта
+    away: Наполи
+    startsAt: "2026-04-24T20:45:00+03:00"
+    odds: { home: 2.40, draw: 3.30, away: 2.90 }
+    extendedLines: []
+    analystNote: |
+      Аталанта дома, в отличной форме. Хороший вариант под фрибет.
+    featured: false
+
+  - id: m_inter_milan
+    sport: football
+    league: Серия А
+    home: Интер
+    away: Милан
+    startsAt: "2026-04-24T22:45:00+03:00"
+    odds: { home: 2.40, draw: 3.30, away: 2.90 }
+    extendedLines: []
+    analystNote: |
+      Миланское дерби. Шансы примерно равны.
+    featured: false
+
+  # ── Бундеслига ──────────────────────────────────────────
+  - id: m_bayern_leipzig
+    sport: football
+    league: Бундеслига
+    home: Бавария
+    away: РБ Лейпциг
+    startsAt: "2026-04-24T19:30:00+03:00"
+    odds: { home: 1.55, draw: 4.20, away: 5.50 }
+    extendedLines:
+      - { name: "Тотал больше 3.5", price: 2.10 }
+    analystNote: |
+      Бавария дома — стабильный фаворит. Лейпциг в провальной серии.
+
+  - id: m_dortmund_leverkusen
+    sport: football
+    league: Бундеслига
+    home: Боруссия Дортмунд
+    away: Байер
+    startsAt: "2026-04-24T17:30:00+03:00"
+    odds: { home: 2.70, draw: 3.50, away: 2.50 }
+    extendedLines: []
+    analystNote: |
+      Байер чуть фаворитнее по форме, но Дортмунд опасен дома.
+
+  # ── Лига Чемпионов ──────────────────────────────────────
+  - id: m_psg_arsenal
+    sport: football
+    league: Лига Чемпионов
+    home: ПСЖ
+    away: Арсенал
+    startsAt: "2026-04-24T22:00:00+03:00"
+    odds: { home: 2.20, draw: 3.50, away: 3.20 }
+    extendedLines:
+      - { name: "Обе забьют — Да", price: 1.62 }
+    analystNote: |
+      1/4 финала ЛЧ. Первый матч пары — будут осторожнее, чем в чемпионатах.
+
+  - id: m_bayern_real
+    sport: football
+    league: Лига Чемпионов
+    home: Бавария
+    away: Реал Мадрид
+    startsAt: "2026-04-25T22:00:00+03:00"
+    odds: { home: 2.45, draw: 3.60, away: 2.75 }
+    extendedLines: []
+    analystNote: Полуфинал ЛЧ. Классический супер-матч.
+
+  # ── NBA доп ─────────────────────────────────────────────
+  - id: m_warriors_nuggets
+    sport: basketball
+    league: NBA
+    home: Голден Стэйт
+    away: Денвер
+    startsAt: "2026-04-24T05:30:00+03:00"
+    odds: { home: 2.10, away: 1.75 }
+    extendedLines:
+      - { name: "Тотал больше 225.5", price: 1.85 }
+    analystNote: Денвер фаворит — Йокич снова в форме.
+
+  # ── Евролига ────────────────────────────────────────────
+  - id: m_real_olympiacos
+    sport: basketball
+    league: Евролига
+    home: Реал Мадрид (БК)
+    away: Олимпиакос
+    startsAt: "2026-04-24T22:00:00+03:00"
+    odds: { home: 1.65, away: 2.30 }
+    extendedLines: []
+    analystNote: Реал в Евролиге берёт практически всё дома.
+
+  - id: m_panathinaikos_fenerbahce
+    sport: basketball
+    league: Евролига
+    home: Панатинаикос
+    away: Фенербахче
+    startsAt: "2026-04-25T20:00:00+03:00"
+    odds: { home: 1.95, away: 1.85 }
+    extendedLines: []
+    analystNote: Финальный этап Евролиги, очень плотный матч.
+
+# ─────────────────────────────────────────────────────────────────
+# Топ-лиги в левом sidebar BookmakerPage (только UI, не в prompt'е).
+# ─────────────────────────────────────────────────────────────────
+leagues:
+  - { code: football, name: Ла Лига, count: 1 }
+  - { code: football, name: АПЛ, count: 1 }
+  - { code: football, name: Серия А, count: 2 }
+  - { code: football, name: Бундеслига, count: 2 }
+  - { code: football, name: Лига Чемпионов, count: 2 }
+  - { code: basketball, name: NBA, count: 2 }
+  - { code: basketball, name: Евролига, count: 2 }
+
+# ─────────────────────────────────────────────────────────────────
+# Стартовый игрок. Клонируется при создании сессии и при first_visit.
+# ─────────────────────────────────────────────────────────────────
+player_template:
+  name: Дима
+  balance: 840
+  currency: USD
+  loginCount: 1
+  recentBets: []
+  activeBonuses: []
+
+# ─────────────────────────────────────────────────────────────────
+# Каталог бонусов, которые выдаются триггерами.
+# ─────────────────────────────────────────────────────────────────
+bonus_catalog:
+  freebet_10:
+    type: freebet
+    amount: 10
+    currency: USD
+    expires_in_hours: 48
+    description: "Фрибет $10, срок 48 часов"
+
+# ─────────────────────────────────────────────────────────────────
+# Дефолтные payload'ы для admin-кнопок. Админ кликает — backend
+# применяет соответствующий payload без ввода данных.
+# ─────────────────────────────────────────────────────────────────
+trigger_presets:
+  big_win:
+    matchId: m_real_barca
+    line: "Обе забьют + ТБ 2.5"
+    stake: 100
+    odds: 5.20
+    payout: 520
+
+  loss_streak:
+    count: 5
+    total_loss: 340
+    notable: "пенальти на 95-й минуте в последней"
+
+  freebet_expiring:
+    bonusId: freebet_10

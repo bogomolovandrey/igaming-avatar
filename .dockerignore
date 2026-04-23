@@ -1,0 +1,11 @@
+.git
+.idea
+.vscode
+.venv
+node_modules
+**/__pycache__
+**/.next
+**/*.log
+secrets/*
+!secrets/.gitkeep
+docs/design/iGaming-avatar/node_modules

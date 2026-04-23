@@ -1,0 +1,46 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        # URLs are baked into the Next.js bundle at build time.
+        - NEXT_PUBLIC_BACKEND_URL=${BACKEND_URL}
+        - NEXT_PUBLIC_WS_URL=${BACKEND_WS_URL}
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=${BACKEND_URL}
+      - NEXT_PUBLIC_WS_URL=${BACKEND_WS_URL}
+    ports:
+      - "${FRONTEND_PORT}:3000"
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    # All `*_API_KEY` and CORS origins must come from .env. Behavioral
+    # knobs (model/voice id) have sane defaults in app/config.py — we only
+    # forward them here when the user explicitly sets them.
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_APPLICATION_CREDENTIALS}
+      - CARTESIA_API_KEY=${CARTESIA_API_KEY}
+      - DEEPGRAM_API_KEY=${DEEPGRAM_API_KEY}
+      - FRONTEND_ORIGIN=${FRONTEND_ORIGIN}
+      # optional behavioral overrides
+      - GEMINI_TTS_MODEL
+      - GEMINI_VOICE
+      - GEMINI_TTS_PREFIX
+      - CARTESIA_MODEL
+      - CARTESIA_VOICE_ID
+      - DEEPGRAM_MODEL
+      - TTS_MODEL
+    volumes:
+      - ./secrets:/secrets:ro
+    ports:
+      - "${BACKEND_PORT}:8000"
+    restart: unless-stopped

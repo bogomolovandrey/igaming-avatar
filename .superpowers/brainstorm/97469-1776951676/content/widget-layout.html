@@ -1,0 +1,114 @@
+<h2>Виджет Алекса — форма и поведение</h2>
+<p class="subtitle">Виджет должен сохранять контекст (игрок видит и страницу, и Алекса), и дать место аватарке/видео. Три паттерна — кликни предпочтительный.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #0a0e14; padding: 0; aspect-ratio: 4/3;">
+      <div style="width:100%;height:100%;position:relative;font-family:system-ui;color:#e5e7eb;font-size:9px;">
+        <!-- fake bookmaker page dimmed -->
+        <div style="position:absolute;inset:0;padding:8px;opacity:0.5;">
+          <div style="background:#111827;padding:4px 6px;color:#fbbf24;font-weight:700;">BETARENA</div>
+          <div style="background:#111827;margin-top:6px;padding:6px;border-radius:4px;">Реал — Барса 2.10 / 3.40 / 3.20</div>
+          <div style="background:#111827;margin-top:4px;padding:6px;border-radius:4px;">Ливерпуль — Сити 1.85 / 3.60 / 4.20</div>
+        </div>
+        <!-- expanded chat panel bottom-right -->
+        <div style="position:absolute;bottom:8px;right:8px;width:160px;height:200px;background:#1a1f2e;border:1px solid #374151;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.6);display:flex;flex-direction:column;">
+          <div style="background:#111827;padding:6px 8px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #374151;">
+            <div style="width:18px;height:18px;background:linear-gradient(135deg,#6366f1,#ec4899);border-radius:50%;"></div>
+            <div style="flex:1;">
+              <div style="color:#fff;font-weight:600;font-size:9px;">Алекс</div>
+              <div style="color:#10b981;font-size:7px;">● онлайн</div>
+            </div>
+            <div style="color:#9ca3af;">×</div>
+          </div>
+          <div style="flex:1;padding:6px;display:flex;flex-direction:column;gap:4px;overflow:hidden;">
+            <div style="background:#374151;padding:4px 6px;border-radius:8px 8px 8px 2px;max-width:80%;font-size:8px;">Привет! Я Алекс 👋</div>
+            <div style="background:#2563eb;padding:4px 6px;border-radius:8px 8px 2px 8px;max-width:80%;align-self:flex-end;font-size:8px;">Привет</div>
+            <div style="background:#374151;padding:4px 6px;border-radius:8px 8px 8px 2px;max-width:80%;font-size:8px;">Как дела?</div>
+          </div>
+          <div style="padding:6px;border-top:1px solid #374151;display:flex;gap:4px;align-items:center;">
+            <div style="flex:1;background:#111827;padding:4px 6px;border-radius:16px;color:#6b7280;font-size:8px;">Напиши...</div>
+            <div style="width:18px;height:18px;background:#2563eb;border-radius:50%;display:flex;align-items:center;justify-content:center;">🎤</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Bubble → Floating panel</h3>
+      <p>Классический Intercom-паттерн. Пузырёк в нижнем правом углу, по клику открывается компактная панель поверх страницы. Сайт частично виден. Мобайл: bottom-sheet на весь экран.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #0a0e14; padding: 0; aspect-ratio: 4/3;">
+      <div style="width:100%;height:100%;position:relative;font-family:system-ui;color:#e5e7eb;font-size:9px;">
+        <!-- fake bookmaker page dimmed, narrower -->
+        <div style="position:absolute;left:0;top:0;bottom:0;right:40%;padding:8px;">
+          <div style="background:#111827;padding:4px 6px;color:#fbbf24;font-weight:700;">BETARENA</div>
+          <div style="background:#111827;margin-top:6px;padding:6px;border-radius:4px;">Реал — Барса 2.10 / 3.40 / 3.20</div>
+          <div style="background:#111827;margin-top:4px;padding:6px;border-radius:4px;">Ливерпуль — Сити 1.85 / 3.60 / 4.20</div>
+        </div>
+        <!-- sidebar right -->
+        <div style="position:absolute;right:0;top:0;bottom:0;width:40%;background:#1a1f2e;border-left:1px solid #374151;display:flex;flex-direction:column;box-shadow:-8px 0 24px rgba(0,0,0,0.4);">
+          <!-- big avatar header -->
+          <div style="padding:10px;background:linear-gradient(180deg,#1e1b4b,#1a1f2e);display:flex;flex-direction:column;align-items:center;gap:4px;border-bottom:1px solid #374151;">
+            <div style="width:44px;height:44px;background:linear-gradient(135deg,#6366f1,#ec4899);border-radius:50%;"></div>
+            <div style="color:#fff;font-weight:700;font-size:10px;">Алекс</div>
+            <div style="color:#10b981;font-size:7px;">● онлайн</div>
+          </div>
+          <div style="flex:1;padding:6px;display:flex;flex-direction:column;gap:4px;overflow:hidden;">
+            <div style="background:#374151;padding:4px 6px;border-radius:8px;font-size:8px;">Привет! Я Алекс</div>
+            <div style="background:#2563eb;padding:4px 6px;border-radius:8px;align-self:flex-end;font-size:8px;">Привет</div>
+            <div style="background:#374151;padding:4px 6px;border-radius:8px;font-size:8px;">Как дела?</div>
+          </div>
+          <div style="padding:6px;border-top:1px solid #374151;display:flex;gap:4px;">
+            <div style="flex:1;background:#111827;padding:4px;border-radius:16px;color:#6b7280;font-size:8px;">Напиши...</div>
+            <div style="width:18px;height:18px;background:#2563eb;border-radius:50%;display:flex;align-items:center;justify-content:center;">🎤</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Persistent sidebar</h3>
+      <p>Боковая панель всегда видна (или разворачивается без оверлея). Большая аватарка сверху — задел под видео. Сайт и Алекс бок о бок, «рабочее пространство с ассистентом». Мобайл: bottom-sheet.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background: #0a0e14; padding: 0; aspect-ratio: 4/3;">
+      <div style="width:100%;height:100%;position:relative;font-family:system-ui;color:#e5e7eb;font-size:9px;">
+        <!-- fake bookmaker page -->
+        <div style="position:absolute;inset:0;padding:8px;">
+          <div style="background:#111827;padding:4px 6px;color:#fbbf24;font-weight:700;">BETARENA</div>
+          <div style="background:#111827;margin-top:6px;padding:6px;border-radius:4px;">Реал — Барса 2.10 / 3.40 / 3.20</div>
+          <div style="background:#111827;margin-top:4px;padding:6px;border-radius:4px;">Ливерпуль — Сити 1.85 / 3.60 / 4.20</div>
+        </div>
+        <!-- floating character + speech bubble -->
+        <div style="position:absolute;bottom:10px;right:10px;display:flex;align-items:flex-end;gap:6px;">
+          <!-- speech bubble -->
+          <div style="background:rgba(26,31,46,0.95);backdrop-filter:blur(8px);border:1px solid #374151;padding:6px 10px;border-radius:12px 12px 2px 12px;max-width:140px;font-size:9px;color:#fff;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+            Привет! Видишь Эль-Класико сегодня? 👀
+          </div>
+          <!-- big persistent avatar -->
+          <div style="width:50px;height:50px;background:linear-gradient(135deg,#6366f1,#ec4899);border-radius:50%;border:2px solid #fff;box-shadow:0 6px 24px rgba(99,102,241,0.5);position:relative;">
+            <div style="position:absolute;bottom:2px;right:2px;width:10px;height:10px;background:#10b981;border-radius:50%;border:1.5px solid #1a1f2e;"></div>
+          </div>
+        </div>
+        <!-- compact input at bottom -->
+        <div style="position:absolute;bottom:10px;left:10px;right:70px;background:rgba(26,31,46,0.85);backdrop-filter:blur(8px);border:1px solid #374151;border-radius:20px;padding:5px 10px;display:flex;gap:4px;align-items:center;">
+          <span style="color:#6b7280;font-size:8px;flex:1;">Напиши или 🎤 зажми</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Living character</h3>
+      <p>Большой «живой» аватар всегда висит в углу (не пузырёк). Новые реплики всплывают над ним в виде speech bubble, чат разворачивается по клику. Максимальная эмоциональная связь — Алекс «присутствует».</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="section" style="margin-top: 1.5rem;">
+  <p class="subtitle">Во всех вариантах: голосовая кнопка (🎤) встроена в поле ввода — зажать = говорить (push-to-talk), как в WhatsApp.</p>
+</div>

@@ -1,0 +1,113 @@
+# 9 архетипов AI-компаньонов для галереи. Один (alex) активен.
+# Поле `imagePrompt` идёт в Gemini Image API через scripts/generate_portraits.py.
+# При смене prompt — удалить frontend/public/characters/.generated-lock и
+# перегенерировать.
+
+style_preset: |
+  Square portrait, head-and-shoulders, bust crop, looking slightly off-camera.
+  Clean studio lighting with subtle gradient backdrop. Photorealistic but
+  with a slight stylized quality, like a high-end magazine editorial.
+  Modern, premium aesthetic. Sharp eye contact (when facing camera).
+  No text, no logos, no watermarks. PNG with no border.
+
+characters:
+  - id: alex
+    name: Алекс
+    role: Дружелюбный компаньон
+    monogram: А
+    grad: linear-gradient(135deg, #6366f1, #ec4899)
+    active: true
+    imagePrompt: |
+      Russian young man, ~25 years old, friendly approachable face, short brown
+      hair, light stubble, wearing a casual dark t-shirt under a grey jacket.
+      Warm, knowing smile — like a friend who watches every match with you.
+      Backdrop: deep navy gradient with a subtle indigo→pink edge glow that
+      hints at the avatar gradient. Genuine, not posed.
+
+  - id: max
+    name: Макс
+    role: Ботаник-аналитик
+    monogram: М
+    grad: linear-gradient(135deg, #0ea5e9, #6366f1)
+    active: false
+    imagePrompt: |
+      Russian young man, late 20s, glasses, tousled hair, plain navy hoodie.
+      Slight half-smile, intense focused eyes — the guy with spreadsheets open
+      in five tabs. Backdrop: cool blue gradient.
+
+  - id: lika
+    name: Лика
+    role: Эмоциональная тусовщица
+    monogram: Л
+    grad: linear-gradient(135deg, #f472b6, #f59e0b)
+    active: false
+    imagePrompt: |
+      Russian young woman, ~26 years old, bright energetic face, long wavy
+      blonde hair, gold hoop earrings, off-shoulder pink top. Open laugh,
+      mid-celebration energy. Backdrop: warm pink-to-gold gradient.
+
+  - id: gennady
+    name: Геннадий
+    role: Ветеран-тренер
+    monogram: Г
+    grad: linear-gradient(135deg, #475569, #1e293b)
+    active: false
+    imagePrompt: |
+      Russian man in his 50s, weathered honest face, salt-and-pepper hair,
+      grey wool sweater. Calm, authoritative expression — the coach who has
+      seen every season. Backdrop: muted slate grey.
+
+  - id: stas
+    name: Стас
+    role: Стример-шутник
+    monogram: С
+    grad: linear-gradient(135deg, #10b981, #06b6d4)
+    active: false
+    imagePrompt: |
+      Russian young man, early 20s, gaming headset around neck, snapback cap
+      backwards, neon-green graphic tee. Cocky grin, eyebrow raised — twitch
+      streamer energy. Backdrop: green-cyan neon gradient with subtle bokeh.
+
+  - id: vera
+    name: Вера
+    role: Статистик в деловом стиле
+    monogram: В
+    grad: linear-gradient(135deg, #64748b, #334155)
+    active: false
+    imagePrompt: |
+      Russian woman, ~32 years old, sharp face, dark hair pulled back, charcoal
+      blazer. Composed half-smile — analyst who delivers cold numbers warmly.
+      Backdrop: neutral slate-grey gradient.
+
+  - id: artem
+    name: Артём
+    role: Хипстер-крипта
+    monogram: А
+    grad: linear-gradient(135deg, #a855f7, #6366f1)
+    active: false
+    imagePrompt: |
+      Russian young man, ~28, neat beard, bleached undercut, oversized purple
+      pullover. Half-smirk, slightly off-centered look. Backdrop: deep purple
+      with violet bokeh.
+
+  - id: boris
+    name: Борис
+    role: Старая школа
+    monogram: Б
+    grad: linear-gradient(135deg, #92400e, #451a03)
+    active: false
+    imagePrompt: |
+      Russian man in his late 40s, broad shoulders, neatly trimmed beard,
+      brown leather jacket over a beige sweater. Reserved confident look.
+      Backdrop: warm amber-to-brown gradient.
+
+  - id: dron
+    name: Дрон
+    role: Bro-tier атлет
+    monogram: Д
+    grad: linear-gradient(135deg, #ef4444, #f59e0b)
+    active: false
+    imagePrompt: |
+      Russian young man, early 20s, athletic, very short crew cut, red
+      sleeveless training top, defined shoulders. Confident grin, jaw set.
+      Backdrop: red-orange gradient with motion-blur energy.
