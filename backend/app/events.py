@@ -168,6 +168,8 @@ async def trigger_event(
     session_id: str,
     event_type: DemoEventType,
     payload: dict,
+    *,
+    stream_reply: bool = True,
 ) -> SessionState:
     """Mutate state, push state-update over SSE, and trigger Alex's
     proactive reply (via background-streamed message-* events).
@@ -197,7 +199,10 @@ async def trigger_event(
         return session
     if event_type == "first_visit":
         await bus.publish(session.id, "ui", {"kind": "reset"})
-        clear_event(session)
+        if stream_reply:
+            await _stream_proactive_reply(session)
+        else:
+            clear_event(session)
         return session
 
     # UI hint per event for animations
@@ -205,7 +210,10 @@ async def trigger_event(
     if ui_hint is not None:
         await bus.publish(session.id, "ui", ui_hint)
 
-    await _stream_proactive_reply(session)
+    if stream_reply:
+        await _stream_proactive_reply(session)
+    else:
+        clear_event(session)
     return session
 
 

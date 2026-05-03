@@ -1,7 +1,7 @@
 [project]
 name = "avatar-ai-backend"
 version = "0.1.0"
-description = "Avatar AI Demo backend — FastAPI + Pipecat"
+description = "Avatar AI Demo backend — FastAPI"
 requires-python = ">=3.12"
 
 dependencies = [

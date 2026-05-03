@@ -1,10 +1,12 @@
 "use client";
 
 import type { ChatHook } from "@/hooks/useChat";
+import type { AnamAvatarHook } from "@/hooks/useAnamAvatar";
 import type { VoiceHook } from "@/hooks/useVoice";
 import type { DemoEventType, SessionState } from "@/lib/types";
 import { AdminView } from "../AdminView/AdminView";
 import { ChatView } from "../ChatView/ChatView";
+import { AnamAvatarPanel } from "./AnamAvatarPanel";
 import { InputBar } from "./InputBar";
 import { WidgetHeader } from "./WidgetHeader";
 import { WidgetTabs, type WidgetTab } from "./WidgetTabs";
@@ -21,6 +23,7 @@ type Props = {
   ) => void | Promise<void>;
   onInject: (text: string) => void | Promise<void>;
   voice?: VoiceHook;
+  avatar: AnamAvatarHook;
 };
 
 export function MobileWidget({
@@ -32,6 +35,7 @@ export function MobileWidget({
   onTrigger,
   onInject,
   voice,
+  avatar,
 }: Props) {
   const rgClass = session.mode === "rg_care" ? " rg-glow" : "";
   return (
@@ -51,6 +55,7 @@ export function MobileWidget({
     >
       <WidgetHeader mobile onClose={onClose} />
       <WidgetTabs tab={tab} setTab={setTab} />
+      <AnamAvatarPanel avatar={avatar} />
       {tab === "chat" ? (
         <ChatView
           messages={chat.messages}
@@ -73,8 +78,8 @@ export function MobileWidget({
         disabled={chat.streaming}
         micActive={voice?.micActive}
         interim={voice?.interim}
-        onMicDown={voice?.startListening}
-        onMicUp={voice?.stopListening}
+        onMicDown={avatar.connected ? undefined : voice?.startListening}
+        onMicUp={avatar.connected ? undefined : voice?.stopListening}
       />
     </div>
   );

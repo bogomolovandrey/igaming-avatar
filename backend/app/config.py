@@ -22,6 +22,16 @@ def _split(value: str) -> list[str]:
     return [item.strip() for item in value.split(",") if item.strip()]
 
 
+def _int_env(name: str, default: int) -> int:
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return default
+    try:
+        return int(raw)
+    except ValueError:
+        return default
+
+
 @dataclass(frozen=True)
 class Settings:
     anthropic_api_key: str
@@ -33,6 +43,12 @@ class Settings:
     cartesia_voice_id: str
     deepgram_model: str
     cartesia_model: str
+    anam_api_key: str
+    anam_avatar_id: str
+    anam_voice_id: str
+    anam_language_code: str
+    anam_llm_id: str
+    anam_max_session_seconds: int
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -53,6 +69,12 @@ class Settings:
             ),
             deepgram_model=os.environ.get("DEEPGRAM_MODEL", "nova-3-general"),
             cartesia_model=os.environ.get("CARTESIA_MODEL", "sonic-2"),
+            anam_api_key=os.environ.get("ANAM_API_KEY", ""),
+            anam_avatar_id=os.environ.get("ANAM_AVATAR_ID", ""),
+            anam_voice_id=os.environ.get("ANAM_VOICE_ID", ""),
+            anam_language_code=os.environ.get("ANAM_LANGUAGE_CODE", "ru"),
+            anam_llm_id=os.environ.get("ANAM_LLM_ID", "CUSTOMER_CLIENT_V1"),
+            anam_max_session_seconds=_int_env("ANAM_MAX_SESSION_SECONDS", 600),
         )
 
 

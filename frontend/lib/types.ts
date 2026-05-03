@@ -98,7 +98,7 @@ export type DemoEvent = {
 
 export type MessageRole = "user" | "assistant" | "system";
 
-export type MessageSource = "voice" | "text" | "inject" | "trigger";
+export type MessageSource = "voice" | "text" | "inject" | "trigger" | "video" | "anam";
 
 export type Message = {
   role: MessageRole;

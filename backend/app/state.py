@@ -22,7 +22,7 @@ DemoEventType = Literal[
     "custom",
 ]
 MessageRole = Literal["user", "assistant", "system"]
-MessageSource = Literal["voice", "text", "inject", "trigger"]
+MessageSource = Literal["voice", "text", "inject", "trigger", "video", "anam"]
 
 
 def _now_iso() -> str:
@@ -101,15 +101,18 @@ class SessionStore:
         self._sessions: dict[str, SessionState] = {}
         self._lock = asyncio.Lock()
 
-    async def create(self) -> SessionState:
+    def _new_session(self, sid: str) -> SessionState:
         demo = load_demo_state()
+        return SessionState(
+            id=sid,
+            player=player_from_template(demo.player_template),
+            mode="onboarding",
+        )
+
+    async def create(self) -> SessionState:
         async with self._lock:
             sid = session_naming.generate(taken=set(self._sessions.keys()))
-            session = SessionState(
-                id=sid,
-                player=player_from_template(demo.player_template),
-                mode="onboarding",
-            )
+            session = self._new_session(sid)
             self._sessions[sid] = session
             return session
 
@@ -118,11 +121,19 @@ class SessionStore:
             return self._sessions.get(sid)
 
     async def get_or_create(self, sid: str | None) -> SessionState:
-        if sid:
-            existing = await self.get(sid)
-            if existing is not None:
-                return existing
-        return await self.create()
+        async with self._lock:
+            if sid:
+                existing = self._sessions.get(sid)
+                if existing is not None:
+                    return existing
+                session = self._new_session(sid)
+                self._sessions[sid] = session
+                return session
+
+            generated = session_naming.generate(taken=set(self._sessions.keys()))
+            session = self._new_session(generated)
+            self._sessions[generated] = session
+            return session
 
     async def reset(self, sid: str) -> SessionState | None:
         """Used by `first_visit` trigger — wipe session to template defaults."""

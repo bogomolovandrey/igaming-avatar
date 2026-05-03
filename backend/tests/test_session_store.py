@@ -25,7 +25,7 @@ async def test_get_or_create_resumes_existing():
 async def test_get_or_create_creates_on_unknown_id():
     store = SessionStore()
     s = await store.get_or_create("nonexistent")
-    assert s.id != "nonexistent"
+    assert s.id == "nonexistent"
 
 
 @pytest.mark.asyncio

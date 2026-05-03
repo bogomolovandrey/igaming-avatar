@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.anam_api import router as anam_router
 from app.chat_api import router as chat_router
 from app.config import settings
 from app.session_api import router as session_router
@@ -25,6 +26,7 @@ app.include_router(session_router)
 app.include_router(chat_router)
 app.include_router(trigger_router)
 app.include_router(voice_api_router)
+app.include_router(anam_router)
 
 
 @app.get("/health")

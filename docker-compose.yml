@@ -41,6 +41,12 @@ services:
       - CARTESIA_VOICE_ID
       - DEEPGRAM_MODEL
       - TTS_MODEL
+      - ANAM_API_KEY=${ANAM_API_KEY}
+      - ANAM_AVATAR_ID=${ANAM_AVATAR_ID}
+      - ANAM_VOICE_ID=${ANAM_VOICE_ID}
+      - ANAM_LANGUAGE_CODE=${ANAM_LANGUAGE_CODE}
+      - ANAM_LLM_ID=${ANAM_LLM_ID}
+      - ANAM_MAX_SESSION_SECONDS=${ANAM_MAX_SESSION_SECONDS}
     volumes:
       - ./secrets:/secrets:ro
     ports:

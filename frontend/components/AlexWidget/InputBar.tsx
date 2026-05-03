@@ -30,6 +30,8 @@ export function InputBar({
 
   // When user typed something we swap the mic for a send button.
   const showSend = val.trim().length > 0 && !micActive;
+  const micHandlersReady = Boolean(onMicDown && onMicUp);
+  const micAvailable = micHandlersReady && !disabled;
 
   return (
     <div
@@ -109,24 +111,30 @@ export function InputBar({
           type="button"
           onMouseDown={(e) => {
             e.preventDefault();
-            onMicDown?.();
+            if (micAvailable) onMicDown?.();
           }}
           onMouseUp={(e) => {
             e.preventDefault();
-            onMicUp?.();
+            if (micAvailable) onMicUp?.();
           }}
           onMouseLeave={() => {
-            if (micActive) onMicUp?.();
+            if (micActive && micAvailable) onMicUp?.();
           }}
           onTouchStart={(e) => {
             e.preventDefault();
-            onMicDown?.();
+            if (micAvailable) onMicDown?.();
           }}
           onTouchEnd={(e) => {
             e.preventDefault();
-            onMicUp?.();
+            if (micAvailable) onMicUp?.();
           }}
-          title="Зажми и говори"
+          title={
+            micAvailable
+              ? "Зажми и говори"
+              : micHandlersReady
+                ? "Сейчас нельзя говорить"
+                : "Микрофон в видеоокне"
+          }
           style={{
             width: 40,
             height: 40,
@@ -135,7 +143,7 @@ export function InputBar({
               ? "linear-gradient(135deg, #ec4899, #6366f1)"
               : "linear-gradient(135deg, #fbbf24, #f59e0b)",
             border: "none",
-            cursor: "pointer",
+            cursor: micAvailable ? "pointer" : "default",
             color: "#0a0e14",
             display: "grid",
             placeItems: "center",
@@ -144,6 +152,7 @@ export function InputBar({
               ? "0 0 0 4px rgba(236,72,153,0.25)"
               : "0 4px 12px rgba(251,191,36,0.3)",
             transition: "all 180ms ease",
+            opacity: micAvailable ? 1 : 0.45,
           }}
         >
           {micActive ? (

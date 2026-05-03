@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import asyncio
+from typing import Literal
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from starlette.responses import StreamingResponse
 
 from app.events import inject_user_message, trigger_event
@@ -18,7 +19,8 @@ router = APIRouter(prefix="/api", tags=["admin"])
 class TriggerRequest(BaseModel):
     sessionId: str
     type: DemoEventType
-    payload: dict = {}
+    payload: dict = Field(default_factory=dict)
+    delivery: Literal["classic", "video", "tavus", "both"] = "classic"
 
 
 class InjectRequest(BaseModel):
@@ -32,7 +34,15 @@ async def post_trigger(req: TriggerRequest):
     # stream gets pushed through /api/events SSE.
     async def runner():
         try:
-            await trigger_event(req.sessionId, req.type, req.payload)
+            await trigger_event(
+                req.sessionId,
+                req.type,
+                req.payload,
+                # `tavus` remains accepted as a legacy alias. In the Anam
+                # path the frontend speaks the normal SSE deltas, so every
+                # delivery mode keeps the backend LLM stream enabled.
+                stream_reply=True,
+            )
         except Exception as exc:  # noqa: BLE001
             await bus.publish(
                 req.sessionId,

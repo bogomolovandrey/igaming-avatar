@@ -1,12 +1,57 @@
 # Avatar AI Demo — Алекс
 
-AI-компаньон для букмекерской платформы **BETARENA**. Throwaway-демо ~10 минут на презентацию клиенту: живой Claude отвечает в характере, голосовой режим (Whisper STT → Claude → Gemini TTS), админ-триггеры (выигрыш / серия проигрышей / фрибет / галерея), Markdown в чате, мужской русский голос.
+> Веб-виджет AI-компаньона «Алекс» поверх букмекерской платформы. Throwaway-демо для презентации B2B-клиенту: ~10 минут живого диалога с реальным Claude (текстом и голосом), нативные триггерные события (выигрыш, серия проигрышей, фрибеты), Responsible Gambling-режим. **Не очередной чат-бот поддержки** — персонаж с характером, тоном и мнениями.
 
-См. также:
-- [`docs/dev-task.md`](docs/dev-task.md) — задание заказчика.
-- [`docs/Avatar_AI_Demo_Scenario.docx.md`](docs/Avatar_AI_Demo_Scenario.docx.md) — целевой UX-сценарий, реплики Алекса дословно.
-- [`docs/superpowers/specs/2026-04-23-avatar-ai-demo-design.md`](docs/superpowers/specs/2026-04-23-avatar-ai-demo-design.md) — исходная техническая спека.
-- [`docs/backlog.md`](docs/backlog.md) — что сознательно отложено.
+---
+
+## О чём проект и зачем
+
+**Продукт:** Avatar AI — AI-компаньон, который операторы iGaming-платформ встраивают как виджет поверх своего сайта. Демо показывает одного готового персонажа (Алекса) на буровой страничке вымышленного букмекера BETARENA — этого достаточно, чтобы потенциальный клиент понял, как продукт встроится в его собственный фронт.
+
+**Кому показываем:** продуктовым / маркетинговым лидам букмекерских и казино-операторов, которые ищут способ повысить retention и одновременно закрыть требования регуляторов по Responsible Gambling.
+
+**Какую бизнес-ценность демонстрирует демо:**
+
+| Блок сценария | Бизнес-задача | Что видит клиент |
+|---|---|---|
+| **1. Онбординг и знакомство** | Конверсия в первое взаимодействие | Живой персонаж с характером, не FAQ-бот: «О, привет 👋 Наконец-то кто-то новенький». Знакомится по имени, рассказывает кто он. |
+| **2. Аналитика ставок** | Retention через утилитарность | Алекс не просто выдаёт коэффициенты на Эль-Класико — добавляет логику («обе забьют — в 5 из 6 встреч») и своё мнение. |
+| **3. Триггерные события + RG-психолог** | Retention + compliance + нативная монетизация | На крупном выигрыше — разделяет радость; на серии проигрышей — переключается в режим заботы (никаких рекомендаций ставок, эмпатия, «давай завтра на свежую голову»); на фрибете — мягко напоминает в контексте. RG-логи можно предъявить UKGC/MGA. |
+| **4. Видеоаватар + smalltalk** | Wow-эффект и дифференциация | Anam live-видеоаватар озвучивает ответы Алекса лицом и голосом, а чат параллельно дублирует реплики текстом. |
+
+**Главное продуктовое отличие** — три уровня одной интеракции в одном виджете:
+1. **Персонаж** (эмоциональная связь, тон друга) —
+2. **Эксперт** (аналитика и нативные рекомендации) —
+3. **Compliance-инструмент** (RG-режим как факт ответственного отношения к игроку, который оператор показывает регулятору).
+
+## Требования и принципы
+
+Из [`docs/dev-task.md`](docs/dev-task.md) и [спеки](docs/superpowers/specs/2026-04-23-avatar-ai-demo-design.md) — то, что **обязательно** в демо:
+
+- **Всё работает реально, не заскриптовано.** Алекс отвечает на произвольные вопросы клиента живой LLM, не выученными ответами.
+- **Текст, голос и видео.** Текстовый чат — стриминг токенов; голосовой — push-to-talk fallback; видеоаватар — Anam WebRTC video + voice rendering с текстовым дублем в чате.
+- **Триггеры запускаются вручную** через скрытую панель админа (имитация интеграции с CRM оператора).
+- **Один виджет, один сценарий, две платформы:** desktop (sidebar 400px) + mobile (fullscreen). iOS Safari + Android Chrome обязательны.
+- **Длительность демо 8–10 минут**, ~2.5с end-to-end задержка на голос как цель.
+- **Алекс держит характер** даже на провокациях («ты AI?» — «Да, AI, но для тебя — Алекс»), но не врёт. В RG-режиме никаких ставочных рекомендаций.
+- **Throwaway-кодовая база.** Архитектурные shortcut'ы (in-memory state, без DB/MQ/Redis) — сознательные. После показа продакшн-версия пишется заново.
+
+**Out of scope** (см. [`docs/backlog.md`](docs/backlog.md)):
+- Реальная интеграция с CRM, кассой, live-коэффициентами оператора.
+- Multi-user / межустройственная синхронизация — один браузер = одна сессия.
+- Светлая тема, мультиязычность.
+
+## Где какая информация
+
+| Файл | Что там |
+|---|---|
+| [`docs/dev-task.md`](docs/dev-task.md) | Задание заказчика разработчику: что делаем, в каком стеке, в каком порядке. |
+| [`docs/Avatar_AI_Demo_Scenario.docx.md`](docs/Avatar_AI_Demo_Scenario.docx.md) | **Главный продуктовый артефакт** — пошаговый сценарий 10-минутной демонстрации с дословными репликами Алекса по всем 4 блокам. Используется как референс для калибровки промптов. |
+| [`docs/design-brief.md`](docs/design-brief.md) | Дизайн-бриф: палитра (dark + gold), типографика (Manrope + JetBrains Mono), layout (desktop 400px sidebar / mobile fullscreen), список 9 архетипов компаньонов. |
+| [`docs/superpowers/specs/2026-04-23-avatar-ai-demo-design.md`](docs/superpowers/specs/2026-04-23-avatar-ai-demo-design.md) | Исходная техническая спека (стек, API, модель данных, prompt-стратегия, sequence сборки, DoD). Точный стек со временем менялся — текущее состояние ниже в этом README. |
+| [`docs/backlog.md`](docs/backlog.md) | Что сознательно отложили (live-коэффициенты, продовая CRM-интеграция, и т.д.). |
+| [`docs/design/iGaming-avatar/`](docs/design/iGaming-avatar/) | Интерактивный React-прототип от дизайнера (HTML + Babel-standalone). Источник CSS-токенов и keyframe-анимаций; компоненты переписаны в TS в `frontend/components/`. |
+| Этот README | Технические детали: стек, архитектура, endpoints, как запускать, как деплоить. |
 
 ---
 
@@ -20,12 +65,13 @@ AI-компаньон для букмекерской платформы **BETAR
 6. [Триггеры и режимы](#триггеры-и-режимы)
 7. [System prompt](#system-prompt)
 8. [Голосовой путь](#голосовой-путь)
-9. [Источник данных (`demo-state.yaml`)](#источник-данных-demo-stateyaml)
-10. [Галерея персонажей и генерация портретов](#галерея-персонажей-и-генерация-портретов)
-11. [Структура репо](#структура-репо)
-12. [Тесты](#тесты)
-13. [Деплой через Coolify](#деплой-через-coolify)
-14. [Известные ограничения](#известные-ограничения)
+9. [Видеоаватарный путь](#видеоаватарный-путь)
+10. [Источник данных (`demo-state.yaml`)](#источник-данных-demo-stateyaml)
+11. [Галерея персонажей и генерация портретов](#галерея-персонажей-и-генерация-портретов)
+12. [Структура репо](#структура-репо)
+13. [Тесты](#тесты)
+14. [Деплой через Coolify](#деплой-через-coolify)
+15. [Известные ограничения](#известные-ограничения)
 
 ---
 
@@ -37,15 +83,16 @@ AI-компаньон для букмекерской платформы **BETAR
 | LLM | **Claude Sonnet 4.6** (Anthropic SDK, SSE streaming) | Лучший русский, попадает в роль, держит mode-аддоны |
 | STT | **OpenAI Whisper** (`whisper-1`, MediaRecorder в браузере → `/api/voice/stt`) | Качественный русский, без GCP service account |
 | TTS | **Gemini Flash TTS** (`gemini-2.5-flash-preview-tts`, voice `Puck`) — primary; **Cartesia Sonic-2** (voice `Dmitri`) — fallback | Gemini даёт natural-language voice direction; Cartesia стабильна когда квота Gemini кончается |
+| Video avatar | **Anam AI JS SDK** (`CUSTOMER_CLIENT_V1`, WebRTC, `createTalkMessageStream`) | Сохраняем текущий Claude/prompt/триггеры, а Anam отвечает за live video + voice rendering |
 | Image gen (одноразово, 9 портретов) | OpenAI `gpt-image-1` | На free-tier Gemini Image закрыт |
 | Backend framework | Python 3.12 + FastAPI | Простота, async SSE/Streaming |
 | Markdown в чате | `react-markdown` + `remark-gfm` | Чтобы `**жирный**` не показывался со звёздочками |
 | Session state | In-memory `dict[session_id, SessionState]` в backend | Throwaway — restart на деплое норм |
-| Транспорт | HTTPS · SSE · multipart upload (для STT) | Без WebSocket — Web Speech API не понадобился, MediaRecorder достаточен |
+| Транспорт | HTTPS · SSE · multipart upload (для classic voice) · Anam WebRTC | Триггеры и LLM-текст идут через backend SSE, live-видео и озвучка — через Anam SDK |
 | Orchestration | docker-compose, 2 сервиса (`frontend`, `backend`) | Минимум |
 | Deploy | VPS · Coolify (Caddy reverse proxy, TLS) | Coolify сам выдаёт сертификаты и роутит |
 
-> Pipecat / Deepgram / WebSocket-pipeline были в первой итерации, потом удалены — текущая реализация лёгче (без torch, без service account JSON, backend image ~1.4 ГБ вместо 3 ГБ, startup мгновенный). Спека (§3) разрешала такой пивот.
+> Pipecat / Daily / WebSocket-pipeline были в ранних итерациях, потом удалены — текущая реализация легче: classic voice идёт через REST, видеоаватар через Anam SDK.
 
 ---
 
@@ -99,9 +146,12 @@ AI-компаньон для букмекерской платформы **BETAR
 **Два пути диалога:**
 - **Text path** — `POST /api/chat` (SSE). Юзер пишет → backend стримит токены → frontend рисует typing→message.
 - **Voice path** — MediaRecorder в браузере записывает WebM → `POST /api/voice/stt` (Whisper) → текст → тот же `/api/chat` → ответ Claude → чанковый TTS по предложениям через `/api/voice/tts`.
+- **Video path** — `POST /api/anam/session-token` выдаёт короткий Anam token, frontend стартует Anam SDK с `disableInputAudio: true`, показывает только наш `<video>` и стримит Claude-delta в `createTalkMessageStream()`.
 
 **Proactive (триггеры/инжект):**
-- Админ жмёт кнопку → `POST /api/trigger` → backend мутирует state, ставит `lastEvent`, переключает mode → asyncio запускает фоновый стрим Claude → деltas пушит в `proactive_bus` → каждый клиент держит открытый `GET /api/events?sessionId=...` SSE и получает их в чат.
+- Админ жмёт кнопку → `POST /api/trigger` → backend мутирует state, ставит `lastEvent`, переключает mode.
+- Backend запускает фоновый стрим Claude → deltas пушит в `proactive_bus` → frontend получает их по `GET /api/events?sessionId=...`.
+- Если Anam подключён, frontend прерывает текущую речь через `interruptPersona()` и параллельно стримит те же deltas в Anam talk stream; classic TTS при этом не запускается.
 
 ---
 
@@ -111,7 +161,8 @@ AI-компаньон для букмекерской платформы **BETAR
 git clone https://github.com/bogomolovandrey/igaming-avatar.git
 cd igaming-avatar
 cp .env.example .env
-# заполнить ANTHROPIC_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY, CARTESIA_API_KEY (см. ниже)
+# заполнить ANTHROPIC_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY, CARTESIA_API_KEY
+# для видеоаватара также ANAM_API_KEY, ANAM_AVATAR_ID, ANAM_VOICE_ID
 docker compose up --build
 ```
 
@@ -155,6 +206,14 @@ OPENAI_API_KEY=sk-proj-...                 # Whisper STT + (одноразово
 GOOGLE_API_KEY=AIza...                     # Gemini TTS (через AI Studio key)
 CARTESIA_API_KEY=sk_car_...                # TTS fallback
 
+# ─── Anam live video avatar ────────────────────────────────────────
+ANAM_API_KEY=...                           # backend proxy; в браузер не попадает
+ANAM_AVATAR_ID=...                         # avatar из Anam Lab
+ANAM_VOICE_ID=...                          # русский voice из Anam Lab
+ANAM_LANGUAGE_CODE=ru                      # STT language для non-English sessions
+ANAM_LLM_ID=CUSTOMER_CLIENT_V1             # Anam только озвучивает наш LLM stream
+ANAM_MAX_SESSION_SECONDS=600
+
 # ─── Опциональные поведенческие настройки ────────────────────────────
 GEMINI_VOICE=Puck                          # мужской: Puck/Charon/Fenrir/Orus/Iapetus
 CARTESIA_VOICE_ID=888b7df4-...             # Dmitri (мужской русский) by default
@@ -175,11 +234,12 @@ DEEPGRAM_API_KEY=...                       # не используется в т
 | `POST` | `/api/session` | Create-or-resume сессии. Body: `{ sessionId? }` (из cookie). Возвращает `SessionState`. |
 | `GET` | `/api/session/{id}` | Текущий `SessionState`. 404 если нет. |
 | `POST` | `/api/chat` | Text path. SSE-стрим. Body: `{ sessionId, text }`. События: `delta` `{text}` → `done` `{mode}` или `error` `{message}`. |
-| `POST` | `/api/trigger` | Admin trigger. Body: `{ sessionId, type, payload? }`. Возвращает 202 сразу; реакция Алекса прилетает по `/api/events`. |
+| `POST` | `/api/trigger` | Admin trigger. Body: `{ sessionId, type, payload?, delivery? }`, где `delivery=classic|video|both`; legacy `tavus` принимается как alias. Возвращает 202 сразу; реакция Алекса прилетает по `/api/events`. |
 | `POST` | `/api/inject` | Inject как user message. Body: `{ sessionId, text }`. То же поведение, что и user написал в чат, но через админку. |
 | `GET` | `/api/events?sessionId=...` | Long-lived SSE для proactive событий. События: `state`, `ui`, `message-start`/`message-delta`/`message-done`, `user-message`, `message-error`. Heartbeat каждые 25с. |
 | `POST` | `/api/voice/stt` | multipart upload (`file=...webm`). Прокси в OpenAI Whisper. Возвращает `{ text }`. |
 | `POST` | `/api/voice/tts` | Body: `{ text }`. Primary — Gemini Flash TTS, fallback — Cartesia Sonic-2. Возвращает `audio/wav`. Header `X-TTS-Provider: gemini|cartesia` для отладки. |
+| `POST` | `/api/anam/session-token` | Создаёт short-lived Anam session token для текущей сессии. Body: `{ sessionId }`. Требует `ANAM_API_KEY`, `ANAM_AVATAR_ID`, `ANAM_VOICE_ID`. |
 | `GET` | `/health` | Liveness probe. |
 
 ---
@@ -204,6 +264,8 @@ DEEPGRAM_API_KEY=...                       # не используется в т
 - `rg_care` — **sticky**, сбрасывается только явным `first_visit`
 
 Backend — единственный источник истины по mode (LLM его не переключает); счёт user-turn'ов идёт от `session.modeEnteredAt`.
+
+Когда видеоаватар подключён, frontend отправляет `delivery=video`: state/UI hint остаются на backend, Claude-ответ стримится обычными SSE-событиями, а frontend параллельно отдаёт эти же deltas в Anam `TalkMessageStream`.
 
 ---
 
@@ -258,6 +320,18 @@ mouseup ── MediaRecorder.stop() ─── Blob (webm) ────┤
 
 **Push-to-talk vs send button:** в input-поле, как только юзер пишет хоть один символ, mic-кнопка превращается в paper-plane (отправить). Mic виден только когда поле пустое.
 
+## Видеоаватарный путь
+
+Latency-first v1 использует Anam как video/voice rendering layer, а не как отдельный мозг:
+
+1. При открытии chat tab frontend автоматически вызывает `POST /api/anam/session-token`.
+2. Backend создаёт Anam session token с `llmId=CUSTOMER_CLIENT_V1` и `languageCode=ru`.
+3. Frontend создаёт Anam client с `disableInputAudio: true` и запускает `streamToVideoElement()` в наш `<video>`.
+4. Пользователь пишет текст; `/api/chat` стримит Claude deltas; frontend одновременно показывает текст и отправляет чанки в `createTalkMessageStream()`.
+5. Admin trigger идёт через `/api/trigger` и `/api/events`; если Anam онлайн, frontend вызывает `interruptPersona()` и озвучивает новый proactive stream.
+
+Classic text/voice path не удалён: если Anam не подключён или ключи не заданы, виджет работает как раньше через Claude + Whisper + TTS.
+
 ---
 
 ## Источник данных (`demo-state.yaml`)
@@ -308,7 +382,8 @@ igaming-avatar/
 │  │  │                          BackdropMobile, SessionChip
 │  │  ├─ AlexWidget/           — AlexAvatar, CollapsedWidget, SpeechBubble,
 │  │  │                          DesktopWidget, MobileWidget, WidgetHeader,
-│  │  │                          WidgetTabs, InputBar, index.tsx (AppShell)
+│  │  │                          WidgetTabs, InputBar, AnamAvatarPanel,
+│  │  │                          index.tsx (AppShell)
 │  │  ├─ ChatView/             — ChatView, ChatMessage (Markdown), TypingIndicator,
 │  │  │                          MarkdownText
 │  │  ├─ AdminView/            — AdminView, AdminBlock, TriggerIcon
@@ -321,6 +396,7 @@ igaming-avatar/
 │  │  ├─ useEvents.ts          — GET /api/events (SSE) для proactive
 │  │  ├─ useAdmin.ts           — POST /api/trigger, /api/inject
 │  │  ├─ useVoice.ts           — MediaRecorder + Whisper STT + TTS audio queue
+│  │  ├─ useAnamAvatar.ts      — Anam SDK session + talk stream queue
 │  │  └─ useIsMobile.ts
 │  ├─ lib/
 │  │  ├─ api-client.ts         — BACKEND_URL, fetch helpers
@@ -355,6 +431,7 @@ igaming-avatar/
       ├─ session_api.py        — POST/GET /api/session
       ├─ trigger_api.py        — POST /api/trigger, /api/inject; GET /api/events
       ├─ voice_api.py          — POST /api/voice/tts (Gemini→Cartesia), /api/voice/stt (Whisper)
+      ├─ anam_api.py           — backend proxy for Anam session-token
       ├─ llm.py                — Anthropic AsyncAnthropic stream wrapper
       └─ tests/                — pytest (test_prompts, test_modes, test_session_store, test_state_loader)
 ```
@@ -371,9 +448,10 @@ PYTHONPATH=. .venv/bin/pytest tests/ -v
 # Frontend (TS strict)
 cd frontend
 npm run typecheck
+npm run build
 ```
 
-15 backend-тестов на момент initial commit. Тесты не вызывают внешние API (Anthropic / OpenAI / Gemini / Cartesia) — только локальная логика.
+Backend-тесты не вызывают внешние API (Anthropic / OpenAI / Gemini / Cartesia / Anam) — только локальная логика и mocked HTTP-клиенты.
 
 ---
 
@@ -396,6 +474,14 @@ npm run typecheck
    GOOGLE_API_KEY=AIza...
    CARTESIA_API_KEY=sk_car_...
    GEMINI_VOICE=Puck
+
+   # Anam video avatar
+   ANAM_API_KEY=...
+   ANAM_AVATAR_ID=...
+   ANAM_VOICE_ID=...              # русский voice id из Anam Lab
+   ANAM_LANGUAGE_CODE=ru
+   ANAM_LLM_ID=CUSTOMER_CLIENT_V1
+   ANAM_MAX_SESSION_SECONDS=600
    ```
 3. Coolify сам выдаст TLS через Let's Encrypt; за proxy у него Caddy. Никаких nginx/Caddy в `docker-compose.yml`.
 4. **Force rebuild** при изменении `BACKEND_URL` — иначе старый URL остаётся запечён.
@@ -404,6 +490,7 @@ npm run typecheck
    - `https://backend-домен/health` → `{"status":"ok"}`
    - DevTools → Network → `/api/chat` → `text/event-stream`, чанки идут live
    - DevTools → Network → `/api/voice/tts` → `audio/wav` ~3-5с
+   - В виджете → открыть чат → Anam `<video>` подключается через `/api/anam/session-token`, admin trigger звучит через Anam и появляется текстом в чате
 
 **Известный gotcha:** docker-compose `ports:` в формате `"HOST:CONTAINER"` Coolify читает как **target port для своего Caddy upstream**. Поэтому в этом репо `ports: ["${FRONTEND_PORT}:${FRONTEND_PORT}"]` — внутри контейнера и снаружи **одно и то же** значение, иначе Caddy шлёт трафик не туда (получишь 502).
 
@@ -413,8 +500,9 @@ npm run typecheck
 
 - **Throwaway-демо** — in-memory сессии (рестарт backend = всё забыто). DB/Redis намеренно не подключали.
 - **Один процесс backend** — горизонтально не масштабируется (proactive_bus в памяти процесса). Для прода — Redis pub/sub или похожее.
-- **Видеоаватар (Блок 4 сценария) не реализован** — отложен в [`docs/backlog.md`](docs/backlog.md).
-- **Нет Pipecat/WebSocket** — был на ранней итерации, удалён в пользу REST + Whisper. Если понадобятся interim transcripts на лету или sub-секундная latency на голос — возвращаем Pipecat обратно.
+- **Anam-сессия расходует usage после старта stream** — при закрытии/размонтаже виджета frontend вызывает `stopStreaming()`.
+- **Русский голос выбирается в Anam Lab** — без `ANAM_VOICE_ID` backend вернёт 503, чтобы не стартовать демо с неподходящим голосом.
+- **Нет Pipecat/WebSocket для classic voice** — был на ранней итерации, удалён в пользу REST + Whisper. Низкая latency видео закрывается Anam talk streaming; classic voice остаётся fallback.
 - **Mobile Safari** — Whisper-путь работает (MediaRecorder поддержан с iOS 14+), но `audio/play()` на странице может потребовать первого user gesture; первое нажатие mic как раз даёт.
 - **Бесплатные tier'ы лимитированы**: Gemini Flash TTS preview имеет дневную квоту — при 429 авто-переключение на Cartesia.
 

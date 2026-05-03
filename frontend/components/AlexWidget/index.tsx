@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useAdmin } from "@/hooks/useAdmin";
+import { useAnamAvatar } from "@/hooks/useAnamAvatar";
 import { useChat } from "@/hooks/useChat";
 import { useEvents, type UiHint } from "@/hooks/useEvents";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useSession } from "@/hooks/useSession";
 import { useVoice } from "@/hooks/useVoice";
 import { createSentenceStreamer } from "@/lib/sentence-streamer";
-import type { Bonus } from "@/lib/types";
+import type { Bonus, DemoEventType } from "@/lib/types";
 import { BookmakerPage } from "../BookmakerPage";
 import { Confetti } from "../Confetti";
 import { CharacterGallery } from "../CharacterGallery/Gallery";
@@ -32,6 +33,9 @@ export function AppShell() {
   const [balanceFlash, setBalanceFlash] = useState(false);
   const [bubble, setBubble] = useState<ProactiveBubble | null>(null);
   const lastVoiceUseRef = useRef(0);
+  const autoStartedAvatarRef = useRef<string | null>(null);
+  const proactiveAvatarActiveRef = useRef(false);
+  const proactiveAvatarHadDeltaRef = useRef(false);
 
   const voice = useVoice({
     onUserFinal: (text) => {
@@ -52,10 +56,53 @@ export function AppShell() {
     },
   });
 
+  const showBubbleOnce = useCallback(
+    (text: string) => {
+      if (!text || open) return;
+      const key = Date.now();
+      setBubble({ text, key });
+      window.setTimeout(() => {
+        setBubble((prev) => (prev && prev.key === key ? null : prev));
+      }, 7000);
+    },
+    [open]
+  );
+
+  const avatar = useAnamAvatar(session?.id ?? null);
+
+  useEffect(() => {
+    if (!open || tab !== "chat" || !session?.id || avatar.status !== "idle") {
+      return;
+    }
+    if (autoStartedAvatarRef.current === session.id) return;
+    autoStartedAvatarRef.current = session.id;
+    void avatar.start();
+  }, [avatar, open, session?.id, tab]);
+
   // Expose a wrapped send for the text input that streams into TTS only
   // when the user has been talking via voice recently.
   const sendFromTextInput = useCallback(
     async (text: string) => {
+      if (avatar.connected) {
+        let sentAvatarDelta = false;
+        const avatarTurnStarted = avatar.beginSpeech(`chat-${Date.now()}`);
+        await chat.send(text, {
+          onDelta: (delta) => {
+            if (!avatarTurnStarted) return;
+            sentAvatarDelta = true;
+            void avatar.streamSpeechChunk(delta);
+          },
+          onFinish: (full) => {
+            if (!avatarTurnStarted) return;
+            if (sentAvatarDelta) {
+              void avatar.endSpeech();
+            } else if (full.trim()) {
+              void avatar.speakText(full);
+            }
+          },
+        });
+        return;
+      }
       const recentlyUsedVoice =
         Date.now() - lastVoiceUseRef.current < 30_000;
       if (!recentlyUsedVoice) {
@@ -74,22 +121,30 @@ export function AppShell() {
         },
       });
     },
-    [chat, voice]
+    [avatar, chat, voice]
   );
 
   // Sentence streamer for proactive replies (triggers / inject)
   const proactiveStreamerRef = useRef(createSentenceStreamer());
 
-  const showBubbleOnce = useCallback(
-    (text: string) => {
-      if (!text || open) return;
-      const key = Date.now();
-      setBubble({ text, key });
-      window.setTimeout(() => {
-        setBubble((prev) => (prev && prev.key === key ? null : prev));
-      }, 7000);
+  const triggerForCurrentChannel = useCallback(
+    async (type: DemoEventType, payload?: Record<string, unknown>) => {
+      await trigger(type, {
+        payload,
+        delivery: avatar.connected ? "video" : "classic",
+      });
     },
-    [open]
+    [avatar.connected, trigger]
+  );
+
+  const injectForCurrentChannel = useCallback(
+    async (text: string) => {
+      if (avatar.connected) {
+        avatar.interrupt();
+      }
+      await inject(text);
+    },
+    [avatar, inject]
   );
 
   const handleUiHint = useCallback(
@@ -138,20 +193,44 @@ export function AppShell() {
       proactiveStreamerRef.current.reset();
       voice.cancelSpeak();
       chat.startProactive();
+      proactiveAvatarHadDeltaRef.current = false;
+      proactiveAvatarActiveRef.current = avatar.connected
+        ? avatar.beginSpeech(`proactive-${Date.now()}`)
+        : false;
     },
     onAlexMessageDelta: (delta) => {
       chat.appendDelta(delta);
+      if (proactiveAvatarActiveRef.current) {
+        proactiveAvatarHadDeltaRef.current = true;
+        void avatar.streamSpeechChunk(delta);
+        return;
+      }
       const chunks = proactiveStreamerRef.current.push(delta);
       for (const c of chunks) voice.enqueueSpeak(c);
     },
     onAlexMessageDone: (text) => {
-      const tail = proactiveStreamerRef.current.flush();
-      for (const c of tail) voice.enqueueSpeak(c);
+      if (proactiveAvatarActiveRef.current) {
+        if (proactiveAvatarHadDeltaRef.current) {
+          void avatar.endSpeech();
+        } else if (text.trim()) {
+          void avatar.speakText(text);
+        }
+        proactiveAvatarActiveRef.current = false;
+        proactiveAvatarHadDeltaRef.current = false;
+      } else {
+        const tail = proactiveStreamerRef.current.flush();
+        for (const c of tail) voice.enqueueSpeak(c);
+      }
       chat.finishProactive(text);
       showBubbleOnce(text.length > 140 ? text.slice(0, 137) + "…" : text);
     },
     onUserMessage: (text) => chat.appendUser(text),
     onError: (err) => {
+      if (proactiveAvatarActiveRef.current) {
+        void avatar.endSpeech();
+        proactiveAvatarActiveRef.current = false;
+        proactiveAvatarHadDeltaRef.current = false;
+      }
       chat.finishProactive(`Что-то пошло не так: ${err}`);
     },
   });
@@ -192,9 +271,10 @@ export function AppShell() {
           tab={tab}
           setTab={setTab}
           onClose={() => setOpen(false)}
-          onTrigger={trigger}
-          onInject={inject}
+          onTrigger={triggerForCurrentChannel}
+          onInject={injectForCurrentChannel}
           voice={voice}
+          avatar={avatar}
         />
       )}
 
@@ -205,9 +285,10 @@ export function AppShell() {
           tab={tab}
           setTab={setTab}
           onClose={() => setOpen(false)}
-          onTrigger={trigger}
-          onInject={inject}
+          onTrigger={triggerForCurrentChannel}
+          onInject={injectForCurrentChannel}
           voice={voice}
+          avatar={avatar}
         />
       )}
 

@@ -1,11 +1,21 @@
-// Single source of URLs — must come from env (.env → docker-compose → build args).
-// In the browser, if env is missing we fall back to the page's own origin —
-// which is what you want behind a reverse proxy where backend is on the
-// same host. Hardcoded ports here would be misleading.
+// Single source of URLs — normally comes from env (.env → docker-compose →
+// build args). Local `npm run dev` does not read the repo-root .env, so we
+// keep a tiny fallback for the two port pairs used by this demo.
+
+function localDevBackendUrl(): string | null {
+  if (typeof window === "undefined") return null;
+  const { protocol, hostname, port } = window.location;
+  if (hostname !== "localhost" && hostname !== "127.0.0.1") return null;
+  if (port === "3000") return `${protocol}//${hostname}:8000`;
+  if (port === "3100") return `${protocol}//${hostname}:8100`;
+  return null;
+}
 
 function envBackendUrl(): string {
   const fromEnv = process.env.NEXT_PUBLIC_BACKEND_URL;
   if (fromEnv && fromEnv.trim()) return fromEnv.replace(/\/$/, "");
+  const local = localDevBackendUrl();
+  if (local) return local;
   if (typeof window !== "undefined") return window.location.origin;
   return "";
 }

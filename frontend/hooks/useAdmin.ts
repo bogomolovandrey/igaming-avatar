@@ -7,6 +7,7 @@ import type { DemoEventType } from "@/lib/types";
 
 type TriggerOpts = {
   payload?: Record<string, unknown>;
+  delivery?: "classic" | "video" | "tavus" | "both";
 };
 
 export function useAdmin(sessionId: string | null) {
@@ -19,6 +20,7 @@ export function useAdmin(sessionId: string | null) {
           sessionId,
           type,
           payload: opts?.payload ?? {},
+          delivery: opts?.delivery ?? "classic",
         }),
       });
     },
